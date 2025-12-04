@@ -17,7 +17,7 @@ Item {
             id: tabBar
             Layout.fillHeight: true // 一定要占满高度
             implicitWidth: 80 // 直接指定隐式宽度
-
+            currentIndex: 1
             background: Rectangle {
                 anchors.fill: parent
                 color: "#f1edee" // 整个右侧条的底色
@@ -54,15 +54,17 @@ Item {
                 backgroundopacity:1
             }
 
+
+
             // Tab1
             SideTabButton {
                 id: tabPage1
                 label: qsTr("连接")
+                //checked: true
 
                 iconSource: "png/png_connect.png"
 
-
-                //onClicked: stackView.replace("page1.qml")
+                onClicked: stackView.replace("page1.qml")
             }
 
             // Tab2 示例
@@ -71,7 +73,7 @@ Item {
                 label: qsTr("管理")
 
                 iconSource: "png/管理.png"
-                //onClicked: stackView.replace("page1.qml")
+                onClicked: stackView.replace("page2.qml")
             }
             SideTabButton {
                 id: tabPage3
@@ -103,7 +105,15 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            background: Rectangle{
+                anchors.fill: parent
+                color: "#fdf8fa"
+            }
+
             initialItem: "page1.qml"
         }
     }
+
+
+
 }

@@ -198,6 +198,10 @@ void SerialManager::handleReadyRead()
         QString text = QString::fromUtf8(line);
         // 发出“收到一行数据”的信号，交给 QML 去显示
         emit lineReceived(text);
+
+
+        QString hex = QString::fromLatin1(line.toHex(' ')).toUpper();
+        emit hexLineReceived(hex);
     }
 }
 

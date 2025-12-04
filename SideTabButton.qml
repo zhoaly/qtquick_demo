@@ -12,8 +12,8 @@ TabButton {
 
     property int blockHeight: 40                  // 上方色块高度
 
-    property color backgroundcolor: "#e7e0eb"
-    property double backgroundopacity: control.hovered ? 1 : 0
+    property color backgroundcolor:  control.checked ?"#D8BFD8":"#e7e0eb"
+    property double backgroundopacity:control.checked ?1:control.hovered ? 1 : 0
 
     text: ""             // 不用 TabButton 自带文字
     implicitHeight: 80   // 整体高度，可按需要调整
@@ -23,10 +23,10 @@ TabButton {
     anchors.rightMargin: 5
 
 
-    contentItem: Column {
+    contentItem: Item {
         anchors.fill: parent
         anchors.margins: 5
-        spacing: 4
+
 
         // 仅背景做淡入淡出
         Rectangle {
@@ -37,11 +37,18 @@ TabButton {
             width: parent.width
             height: blockHeight
             color: backgroundcolor
+
             opacity: backgroundopacity
 
             Behavior on opacity {
                 NumberAnimation {
                     duration: 500
+                    easing.type: Easing.OutQuad
+                }
+            }
+            Behavior on color {
+                ColorAnimation {
+                    duration: 800
                     easing.type: Easing.OutQuad
                 }
             }
@@ -65,14 +72,10 @@ TabButton {
             color: "#5a5a5a"
             horizontalAlignment: Text.AlignHCenter
             anchors.top: img.bottom
+            anchors.topMargin: 2
             anchors.horizontalCenter: parent.horizontalCenter
             elide: Text.ElideRight
         }
     }
-
-
-
-
-
 
 }

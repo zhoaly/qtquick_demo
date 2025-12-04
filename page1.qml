@@ -8,6 +8,10 @@ Page {
     font.family: "Microsoft YaHei"   // 统一字体族
     title: qsTr("串口连接 - 列布局示例")
 
+
+    property bool timestampEnabled: false//时间戳属性
+
+
     background: Rectangle {
         color: "#fdf8fa"
     }
@@ -45,7 +49,7 @@ Page {
                 MyComboBox  {
                     id: portCombo
                     model: serial.portList.length > 0 ? serial.portList : [qsTr("无可用串口")]
-
+                    enabled: !serial.connected
                     Component.onCompleted: {
                         serial.refreshPorts()   // 启动时刷新一次
                     }
@@ -75,6 +79,7 @@ Page {
                 }
                 MyComboBox  {
                     id: baudCombo
+                    enabled: !serial.connected
                     model: ["9600", "19200", "38400", "57600", "115200"]
                 }
             }
@@ -139,18 +144,45 @@ Page {
             Layout.fillWidth: true
 
             Label {
-                text: qsTr("统计信息 / 预留区域")
+                text: qsTr("统计信息")
                 font.pixelSize: 14
                 Layout.alignment: Qt.AlignVCenter
             }
-
-            ColumnLayout {
+            RowLayout{
                 Layout.fillWidth: true
-                spacing: 4
+                spacing: 20
 
-                Label { text: qsTr("已接收字节：") + serial.rxBytes }
-                Label { text: qsTr("已发送字节：") + serial.txBytes }
-                Label { text: qsTr("错误计数：") + serial.errorCount }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 4
+
+                    Label { text: qsTr("已接收字节：") + serial.rxBytes }
+                    Label { text: qsTr("已发送字节：") + serial.txBytes }
+                    Label { text: qsTr("错误计数：") + serial.errorCount }
+                }
+
+                // 中间“弹簧”：把右边按钮推到最右
+                Item {
+                    Layout.fillWidth: true
+                }
+                MyCheckBox{
+                    id: stampCheck
+                    text: qsTr("时间戳")
+
+                    checked: page1.timestampEnabled
+                    onToggled: page1.timestampEnabled = checked
+                }
+                MyButton{
+                    id: cleanButton
+                    text: qsTr("清除")
+                    onClicked: {//清除接收区
+                        if (recvArea.text.length === 0)
+                            return
+                        recvArea.clear()
+
+                    }
+                }
+
             }
         }
 
@@ -184,14 +216,28 @@ Page {
                         id: sendButton
                         text: qsTr("发送")
                         onClicked: {
-                        if (sendField.text.length === 0)
-                            return
+                            if (sendField.text.length === 0)
+                                return
 
-                        serial.sendText(sendField.text, hexSendCheck.checked)
+                            var rawText = sendField.text
 
-                        recvArea.append("send: " + sendField.text + "\n")
+                            // 先实际发送
+                            serial.sendText(rawText, hexSendCheck.checked)
 
-                        sendField.clear()//发送后立即清空输入框，方便用户输入下一条数据
+                            if (page1.timestampEnabled) {
+                                var now = new Date()
+                                var ts = Qt.formatDateTime(now, "hh:mm:ss.zzz")
+                                var tsHtml = "<font color='#579fd2'>[" + ts + "]</font> "
+
+                                // 这里可选再加一个前缀区分 TX/RX
+                                var prefixHtml = "<b>TX:</b> "
+
+                                recvArea.append(tsHtml +"<font color='#0000ff'> "+ prefixHtml + rawText +"</font>")
+                            } else {
+                                recvArea.append("<font color='#0000ff'><b>TX:</b>"  + rawText +"</font>")
+                            }
+
+                            sendField.clear()
                         }
                     }
                 }
@@ -257,9 +303,12 @@ Page {
 
                 TextArea.flickable: TextArea {
                     id: recvArea
-                    text: "TextArea\n...\n...\n"
+                    readOnly: true
+                    placeholderText: qsTr("收到的数据显示在这里")
+                    placeholderTextColor: "#999999"
+                    textFormat: TextEdit.RichText
                     wrapMode: TextArea.Wrap
-                    placeholderTextColor: "#00ffffff"
+
 
                     // 让 TextArea 占满 Flickable 的可视区域宽度
                     width: recvFlick.width
@@ -312,25 +361,80 @@ Page {
         }
     }
 
+
+    function appendReceivedText(payload) {//公共函数
+        // 记录追加前的滚动位置
+        var oldContentY = recvFlick.contentY
+
+        var html
+        // RX 前缀：绿色
+        var prefixHtml = "<font color='#00aa00'><b>RX:</b>"
+        if (page1.timestampEnabled) {
+            var now = new Date()
+            var ts = Qt.formatDateTime(now, "hh:mm:ss.zzz")
+
+            // 时间戳：蓝色
+            var tsHtml = "<font color='#579fd2'>[" + ts + "]</font> "
+
+            // RX 前缀：绿色
+
+
+            // payload 就是 line 或 hexLine
+            html = tsHtml + prefixHtml + payload + "</font>"
+        } else {
+            // 不带时间戳：整行绿色
+            html = "<font color='#00aa00'>" + prefixHtml + payload + "</font>"
+        }
+
+        recvArea.append(html)
+
+        // 自动滚动控制
+        if (!autoScrollCheck.checked) {
+            recvFlick.contentY = oldContentY
+        } else {
+            recvFlick.contentY = recvFlick.contentHeight - recvFlick.height
+        }
+    }
+
+
 //数据接收处理
+    // 数据接收处理
     Connections {
         target: serial
 
-        // C++ emit lineReceived(const QString &line) 时会触发这里
+        // 文本模式：当 hexRecvCheck 未勾选时使用
         function onLineReceived(line) {
-            // 根据 hexRecvCheck 决定是否做其它格式化，这里先直接显示文本
-            recvArea.append(line)
+            if (hexRecvCheck.checked)
+                return;  // 当前是 HEX 显示模式，忽略文本信号
 
-            if (autoScrollCheck.checked) {
-                recvArea.cursorPosition = recvArea.length
-            }
+            // line 直接作为 payload 传入
+            page1.appendReceivedText(line)
+        }
+
+        // HEX 模式：当 hexRecvCheck 勾选时使用
+        function onHexLineReceived(hexLine) {
+            if (!hexRecvCheck.checked)
+                return;  // 当前是文本显示模式，忽略 HEX 信号
+
+            // hexLine 是 C++ 里真正按字节生成的 "XX XX ..." 字符串
+            page1.appendReceivedText(hexLine)
         }
 
         // C++ emit errorOccurred(const QString &message) 时会触发
         function onErrorOccurred(message) {
-            recvArea.append("[ERROR] " + message + "\n")
-            recvArea.cursorPosition = recvArea.length
+            var oldContentY = recvFlick.contentY
+
+            recvArea.append("<font color='#DC143C'>[ERROR] " + message + "</font>")
+
+            if (!autoScrollCheck.checked) {
+                recvFlick.contentY = oldContentY
+            } else {
+                recvFlick.contentY = recvFlick.contentHeight - recvFlick.height
+            }
         }
     }
+
+
+
 
 }

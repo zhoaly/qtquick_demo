@@ -133,6 +133,8 @@ signals://signals: 是 Qt 定义的关键字（实际上是宏，展开为 prote
     // - 如果你的协议不是按行，可以后续改成其它形式（如按帧长度）。
     void lineReceived(const QString &line);
 
+    // 收到一行hex时发出
+    void hexLineReceived(const QString &hexLine);
     // 串口出现错误时发出（参数为错误描述字符串）
     // - QML 中可以弹出弹窗或写到日志区
     void errorOccurred(const QString &message);

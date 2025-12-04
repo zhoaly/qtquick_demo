@@ -38,6 +38,7 @@ qt_add_qml_module(appQtquickdemo
         RESOURCES png/流转.png
         RESOURCES png/应用场景.png
         RESOURCES png/icon.ico
+        QML_FILES page3.qml
 
 )
 
