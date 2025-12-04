@@ -25,7 +25,6 @@ Button {
         font: control.font
         color: !control.enabled ? "#aaaaaa"
              : control.down ? "#ffffff"
-             : control.hovered ? "#a61d4d"
              : "#333333"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

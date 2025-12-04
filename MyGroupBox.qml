@@ -19,9 +19,9 @@ GroupBox {
 
         border.width: control.hovered ? 4 : 1
 
-        border.color:control.hovered ? "#c48fb3"
+        border.color:control.hovered ? "#9a939d"
                                      : "#e6e1e3"
-        color: control.hovered ? "#fbe2ef"   // 鼠标悬浮：浅粉
+        color: control.hovered ? "#ece6e9"   // 鼠标悬浮：浅粉
                                : "#f7f2f4"                     // 普通状态：淡底色
 
 

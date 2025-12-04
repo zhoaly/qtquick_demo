@@ -1,12 +1,17 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>          //用于设置上下文属性
+#include <QIcon>
 #include "serialmanager.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
+    // ① 设置应用窗口图标（标题栏 + 任务栏）
+    app.setWindowIcon(QIcon(":/qt/qml/Qtquickdemo/png/icon.ico"));
+
+    // 如果你把文件名叫别的，就改成对应路径
     QQmlApplicationEngine engine;
 
     SerialManager serial;

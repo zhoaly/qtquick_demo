@@ -27,6 +27,18 @@ qt_add_qml_module(appQtquickdemo
         QML_FILES MyTextField.qml
         SOURCES serialmanager.h
         SOURCES serialmanager.cpp
+        QML_FILES
+        QML_FILES page2.qml
+        QML_FILES SideTabButton.qml
+        RESOURCES png/png_connect.png
+        RESOURCES png/logo.png
+        RESOURCES png/文件夹.png
+        RESOURCES png/用户.png
+        RESOURCES png/管理.png
+        RESOURCES png/流转.png
+        RESOURCES png/应用场景.png
+        RESOURCES png/icon.ico
+
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

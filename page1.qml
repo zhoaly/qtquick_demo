@@ -4,7 +4,7 @@ import QtQuick.Controls.Universal
 import QtQuick.Layouts
 
 Page {
-    id: page
+    id: page1
     font.family: "Microsoft YaHei"   // 统一字体族
     title: qsTr("串口连接 - 列布局示例")
 

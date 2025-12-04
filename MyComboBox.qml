@@ -29,12 +29,12 @@ ComboBox {
         implicitHeight: 32
         radius: height / 2          // 圆角外形
         border.width: control.hovered ? 2 : 1
-        border.color: control.hovered ? "#c48fb3"
+        border.color: control.hovered ? "#9a939d"
                                       : "#d0c6cf"
 
         color: !control.enabled ? "#f0f0f0"
              : control.down ? "#e4d3dd"      // 按下
-             : control.hovered ? "#fbe2ef"   // 悬浮
+             : control.hovered ? "#ece6e9"   // 悬浮
              : "#f7f2f4"                     // 普通
 
         Behavior on color {
